@@ -34,12 +34,15 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install production dependencies only
-RUN npm install --legacy-peer-deps --production
+# Install production dependencies and prisma (needed for runtime)
+RUN npm install --legacy-peer-deps --production --ignore-scripts
 
 # Copy Prisma Client from builder
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy prisma CLI for potential migrations
+RUN npm install prisma --save-dev --legacy-peer-deps
 
 # Copy built application
 COPY --from=builder /app/dist ./dist
