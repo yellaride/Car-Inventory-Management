@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { MediaService } from './media.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { GenerateUploadUrlDto } from './dto/upload-url.dto';
@@ -21,7 +22,10 @@ import { GenerateUploadUrlDto } from './dto/upload-url.dto';
 @ApiTags('media')
 @Controller('media')
 export class MediaController {
-  constructor(private readonly mediaService: MediaService) {}
+  constructor(
+    private readonly mediaService: MediaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('upload-url')
   @HttpCode(HttpStatus.OK)
@@ -70,11 +74,13 @@ export class MediaController {
       throw new BadRequestException('No file uploaded');
     }
 
+    const storageUrl = this.configService.get<string>('STORAGE_PUBLIC_URL') || 'http://localhost:3001/uploads';
+    
     const createMediaDto: CreateMediaDto = {
       carId,
       type: type as any,
       category,
-      url: `http://localhost:3001/uploads/${file.filename}`,
+      url: `${storageUrl}/${file.filename}`,
       fileName: file.originalname,
       fileSize: file.size,
       mimeType: file.mimetype,
