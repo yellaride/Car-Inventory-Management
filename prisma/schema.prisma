@@ -1,0 +1,156 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Car {
+  id              String    @id @default(uuid())
+  vin             String    @unique
+  make            String
+  model           String
+  year            Int
+  color           String?
+  condition       CarCondition
+  mileage         Int?
+  location        String?
+  purchaseDate    DateTime?
+  purchasePrice   Decimal?  @db.Decimal(10, 2)
+  
+  // Primary/Cover image for listing
+  coverImage      String?
+  
+  // VIN decoded data (JSON)
+  vinData         Json?
+  
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  createdBy       String    @default("system")
+  lastModifiedBy  String?
+  isArchived      Boolean   @default(false)
+  
+  // Relations
+  media           Media[]
+  remarks         Remark[]
+  damages         Damage[]
+  
+  @@index([vin])
+  @@index([condition])
+  @@index([createdAt])
+  @@index([make, model])
+}
+
+model Media {
+  id              String    @id @default(uuid())
+  carId           String
+  car             Car       @relation(fields: [carId], references: [id], onDelete: Cascade)
+  
+  type            MediaType
+  category        String?   // exterior, interior, engine, damage
+  
+  // Storage
+  url             String
+  thumbnailUrl    String?
+  fileName        String
+  fileSize        Int
+  mimeType        String
+  
+  // Video specific
+  duration        Int?      // seconds
+  resolution      String?
+  
+  // Processing
+  status          ProcessingStatus @default(READY)
+  
+  // Metadata
+  uploadedAt      DateTime  @default(now())
+  uploadedBy      String    @default("system")
+  
+  @@index([carId])
+  @@index([type])
+}
+
+model Remark {
+  id              String    @id @default(uuid())
+  carId           String
+  car             Car       @relation(fields: [carId], references: [id], onDelete: Cascade)
+  
+  text            String    @db.Text
+  type            RemarkType? @default(NOTE)
+  priority        Priority?   @default(MEDIUM)
+  
+  // Metadata
+  createdAt       DateTime  @default(now())
+  createdBy       String    @default("system")
+  updatedAt       DateTime  @updatedAt
+  updatedBy       String?
+  
+  @@index([carId])
+  @@index([createdAt])
+}
+
+model Damage {
+  id              String    @id @default(uuid())
+  carId           String
+  car             Car       @relation(fields: [carId], references: [id], onDelete: Cascade)
+  
+  part            String
+  severity        Severity
+  description     String    @db.Text
+  estimatedCost   Decimal?  @db.Decimal(10, 2)
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([carId])
+}
+
+// Enums
+enum CarCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+  SALVAGE
+  JUNK
+}
+
+enum MediaType {
+  VIDEO
+  IMAGE
+  DOCUMENT
+}
+
+enum ProcessingStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum RemarkType {
+  INSPECTION
+  REPAIR
+  NOTE
+  CUSTOMER_COMPLAINT
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Severity {
+  MINOR
+  MODERATE
+  SEVERE
+  TOTAL_LOSS
+}
