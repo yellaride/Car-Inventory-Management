@@ -25,8 +25,8 @@ RUN npm run build
 # Production stage
 FROM node:20-alpine AS production
 
-# Install OpenSSL
-RUN apk add --no-cache openssl libc6-compat
+# Install build dependencies for native modules
+RUN apk add --no-cache openssl libc6-compat python3 make g++
 
 WORKDIR /app
 
@@ -34,15 +34,12 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install production dependencies and prisma (needed for runtime)
-RUN npm install --legacy-peer-deps --production --ignore-scripts
+# Install ALL dependencies (including native modules like bcrypt)
+RUN npm install --legacy-peer-deps
 
-# Copy Prisma Client from builder
+# Copy Prisma Client from builder (backup)
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# Copy prisma CLI for potential migrations
-RUN npm install prisma --save-dev --legacy-peer-deps
 
 # Copy built application
 COPY --from=builder /app/dist ./dist
