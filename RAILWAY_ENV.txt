@@ -11,6 +11,10 @@ JWT_SECRET=car-inventory-super-secure-jwt-secret-xyz-2026-production
 
 JWT_EXPIRES_IN=7d
 
+ADMIN_EMAIL=admin@gmail.com
+
+ADMIN_PASSWORD_HASH=$2b$10$60pCU0WE1FPaiam8X/9J5.ueklVd7Bw0hlaf4fDgt5XMEf9T0Kzyu
+
 CORS_ORIGIN=*
 
 VIN_DECODER_API_URL=https://vpic.nhtsa.dot.gov/api

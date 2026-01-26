@@ -9,8 +9,10 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CarsService } from './cars.service';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
@@ -18,6 +20,8 @@ import { DecodeVinDto } from './dto/decode-vin.dto';
 
 @ApiTags('cars')
 @Controller('cars')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 

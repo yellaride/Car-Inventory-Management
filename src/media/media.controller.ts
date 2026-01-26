@@ -11,16 +11,20 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MediaService } from './media.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { GenerateUploadUrlDto } from './dto/upload-url.dto';
 
 @ApiTags('media')
 @Controller('media')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class MediaController {
   constructor(
     private readonly mediaService: MediaService,

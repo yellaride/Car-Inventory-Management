@@ -9,14 +9,18 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RemarksService } from './remarks.service';
 import { CreateRemarkDto } from './dto/create-remark.dto';
 import { UpdateRemarkDto } from './dto/update-remark.dto';
 
 @ApiTags('remarks')
 @Controller('remarks')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class RemarksController {
   constructor(private readonly remarksService: RemarksService) {}
 
