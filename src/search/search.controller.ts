@@ -1,10 +1,13 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SearchService } from './search.service';
 import { SearchCarsDto } from './dto/search-cars.dto';
 
 @ApiTags('search')
 @Controller('search')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
