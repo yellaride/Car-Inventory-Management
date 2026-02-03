@@ -78,6 +78,16 @@ export class MediaController {
       throw new BadRequestException('No file uploaded');
     }
 
+    const allowedTypes = this.configService.get<string>('ALLOWED_FILE_TYPES');
+    if (allowedTypes) {
+      const allowed = allowedTypes.split(',').map((t) => t.trim());
+      if (!allowed.includes(file.mimetype)) {
+        throw new BadRequestException(
+          `File type ${file.mimetype} not allowed. Allowed: ${allowed.join(', ')}`,
+        );
+      }
+    }
+
     const storageUrl = this.configService.get<string>('STORAGE_PUBLIC_URL') || 'http://localhost:3001/uploads';
     
     const createMediaDto: CreateMediaDto = {
